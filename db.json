@@ -1,0 +1,22 @@
+{
+    "machines": [
+      { "id": 1, "name": "LAM-SEALING-01", "process_group": "LAM", "partition": "P1", "manufacturer": "SEMES", "model": "SLM-200", "installed_date": "2022-03-15", "status": "정상" },
+      { "id": 2, "name": "LAM-COATING-01", "process_group": "LAM", "partition": "P1", "manufacturer": "SEMES", "model": "SLM-210", "installed_date": "2022-03-15", "status": "정상" },
+      { "id": 3, "name": "STK-STACK-01",   "process_group": "STK", "partition": "P2", "manufacturer": "HANWHA", "model": "STK-300", "installed_date": "2021-11-20", "status": "정상" },
+      { "id": 4, "name": "STK-STACK-02",   "process_group": "STK", "partition": "P2", "manufacturer": "HANWHA", "model": "STK-300", "installed_date": "2021-11-20", "status": "점검중" },
+      { "id": 5, "name": "COT-COAT-01",    "process_group": "COT", "partition": "P3", "manufacturer": "TOKYO ELECTRON", "model": "COT-500", "installed_date": "2023-01-10", "status": "정상" },
+      { "id": 6, "name": "COT-DEVELOP-01", "process_group": "COT", "partition": "P3", "manufacturer": "TOKYO ELECTRON", "model": "COT-510", "installed_date": "2023-01-10", "status": "정상" },
+      { "id": 7, "name": "EOL-FINAL-01",   "process_group": "EOL", "partition": "P4", "manufacturer": "ISSI", "model": "EOL-100", "installed_date": "2022-07-05", "status": "정상" },
+      { "id": 8, "name": "EOL-FINAL-02",   "process_group": "EOL", "partition": "P4", "manufacturer": "ISSI", "model": "EOL-100", "installed_date": "2022-07-05", "status": "오류" }
+    ],
+    "metrics": [
+      { "id": 1, "machine_id": 1, "utilization": 82, "defect_rate": 1.2, "production_24h": 1240 },
+      { "id": 2, "machine_id": 2, "utilization": 76, "defect_rate": 0.8, "production_24h": 980 },
+      { "id": 3, "machine_id": 3, "utilization": 91, "defect_rate": 2.1, "production_24h": 1560 },
+      { "id": 4, "machine_id": 4, "utilization": 10,  "defect_rate": 0,   "production_24h": 0 },
+      { "id": 5, "machine_id": 5, "utilization": 65, "defect_rate": 0.5, "production_24h": 870 },
+      { "id": 6, "machine_id": 6, "utilization": 70, "defect_rate": 1.8, "production_24h": 920 },
+      { "id": 7, "machine_id": 7, "utilization": 88, "defect_rate": 1.3, "production_24h": 2100 },
+      { "id": 8, "machine_id": 8, "utilization": 17,  "defect_rate": 0.3,   "production_24h": 0 }
+    ]
+  }
