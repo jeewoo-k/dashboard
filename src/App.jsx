@@ -27,14 +27,17 @@ function StatCard({ title, value, unit }) {
 
 function App() {
   
-  const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString())
+  
   const [machines, setMachines] = useState([])
   const [metrics, setMetrics] = useState([])
   const [selected, setSelected] = useState(null)
   const [filter, setFilter] = useState('전체')
   const filteredMachines = machines.filter(m => filter === '전체' || m.process_group === filter)
+  const [lastUpdated, setLastUpdated] = useState('-')
+  const [selectedDate, setSelectedDate] = useState('')
 
-const filteredMetrics = filteredMachines.map(m => metrics.find(r => String(r.machine_id) === String(m.id))).filter(Boolean)
+
+const filteredMetrics = filteredMachines.map(m => metrics.find(r => String(r.machine_id) === String(m.id) && r.transaction_date === selectedDate)).filter(Boolean)
 
 const avgUtilization = filteredMetrics.length
   ? Math.round(filteredMetrics.reduce((sum, m) => sum + m.utilization, 0) / filteredMetrics.length)
@@ -47,21 +50,7 @@ const avgDefectRate = filteredMetrics.length
 const totalProduction = filteredMetrics.reduce((sum, m) => sum + m.production_24h, 0)
 
 
-  function randomize() {
-    setLastUpdated(new Date().toLocaleTimeString())
-  }
-
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      randomize()
-    }, 3000) 
-
   
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
     function fetchData() {
       fetch('http://localhost:3001/machines')
         .then(res => res.json())
@@ -69,28 +58,55 @@ const totalProduction = filteredMetrics.reduce((sum, m) => sum + m.production_24
   
       fetch('http://localhost:3001/metrics')
         .then(res => res.json())
-        .then(data => setMetrics(data))
+        .then(data => {
+          setMetrics(data)
+          setLastUpdated(new Date().toLocaleTimeString())
+          setSelectedDate(prev => {
+           if (prev ==='') {
+            return data.reduce((latest, m) =>
+              m.transaction_date > latest ? m.transaction_date : latest, '')
+           }
+           return prev
+
+          })
+        })
     }
   
-    fetchData() 
-    const interval = setInterval(fetchData, 5000) 
-  
-    return () => clearInterval(interval) 
-  }, [])
+    useEffect(() => {
+      fetchData()
+      const interval = setInterval(fetchData, 5000)
+      return () => clearInterval(interval)
+    }, [])
+ 
+   const dates = [...new Set(metrics.map(m => m.transaction_date))].sort()
 
   return (
-    <div className="dashboard">
-      <h1 className="dashboard-title">시스템 모니터링 대시보드</h1>
-      
+    
+    <div className='dashboard'> 
+     <div className="dashboard-header">
+       <h1 className="dashboard-title">시스템 모니터링 대시보드</h1>
+       <p className='last-updated'>마지막 업데이트 : {lastUpdated}</p>
+    </div>
+    
+          
       <div className="cards-grid">
       <StatCard title="평균 활용도" value={avgUtilization} unit="%" />
       <StatCard title="평균 불량률" value={avgDefectRate} unit="%" />
       <StatCard title="총 생산량" value={totalProduction} unit="개" />  
       </div>
-      <button className="refresh-btn" onClick={randomize}>
+      <button className="refresh-btn" onClick={fetchData}>
         데이터 갱신
       </button>
-      <p className='last-updated'>마지막 업데이트 : {lastUpdated}</p>
+      
+
+<div className="date-filter">
+  <label>날짜 선택: </label>
+  <select value={selectedDate} onChange={e => setSelectedDate(e.target.value)}>
+    {dates .map(date => (
+      <option key = {date}>{date}</option>
+    ))}
+  </select>
+</div>
 
       <div className="filter-buttons">
   {['전체', 'LAM', 'STK', 'COT', 'EOL'].map(group => (
@@ -106,8 +122,8 @@ const totalProduction = filteredMetrics.reduce((sum, m) => sum + m.production_24
   
   {machines
    .filter(machine => filter === '전체' || machine.process_group === filter)
+   .filter(machine => metrics.some(r => String(r.machine_id) === String(machine.id)&&r.transaction_date === selectedDate))
    .map(machine => {
-    const metric = metrics.find(m => m.machine_id === machine.id)
     return (
       <div key={machine.id} className="machine-row">
         <span className="machine-name" onClick={() => setSelected(machine)} >{machine.name}</span>
@@ -130,7 +146,7 @@ const totalProduction = filteredMetrics.reduce((sum, m) => sum + m.production_24
       <p>설치일: {selected.installed_date}</p>
       <p>상태: {selected.status}</p>
       {(() => {
-        const m = metrics.find(m => String(m.machine_id) === String(selected.id))
+        const m = metrics.find(m => String(m.machine_id) === String(selected.id) && m.transaction_date === selectedDate)
         return m ? (
           <>
             <p>활용도: {m.utilization}%</p>
